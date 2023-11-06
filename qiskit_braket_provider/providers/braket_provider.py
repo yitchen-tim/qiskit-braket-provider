@@ -28,11 +28,15 @@ class AWSBraketProvider(ProviderV1):
          BraketBackend[dm1]]
     """
 
-    def backends(self, name=None, **kwargs):
+    def backends(self, name=None, direct_aws_device=False, **kwargs):
         if kwargs.get("local"):
             return [BraketLocalBackend(name="default")]
         names = [name] if name else None
-        devices = AwsDevice.get_devices(names=names, **kwargs)
+
+        if direct_aws_device:
+            devices = [AwsDevice(kwargs["arn"])]
+        else:
+            devices = AwsDevice.get_devices(names=names, **kwargs)
         # filter by supported devices
         # gate models are only supported
         supported_devices = [
